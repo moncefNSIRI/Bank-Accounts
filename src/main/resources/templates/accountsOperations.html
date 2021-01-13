@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        xmlns:sec="http://www.thymeleaf-extras-springsecurity5"
+		layout:decorator="template1">
+<head>
+	<meta charset="utf-8">
+	<title>My Bank </title>
+</head>
+
+<body>
+	<div layout:fragment="content">
+		<div class="col-md-6">
+			<div class="panel panel-primary">
+				<div class="panel-heading">Display Account</div>
+				<div class="panel-body">
+				<form th:action="@{/viewAccount}" method="get">
+					<div>
+						<label>Account Code :</label>
+						<input type="text" name="accountCode" />
+					</div>	
+					<div>
+						<button  type="submit" class="btn btn-primary">Enter</button>
+					</div>
+				</div>	
+				</form>
+				<div th:if="${exception}" class="text-danger" th:text="${exception.message}">
+					
+				</div>
+			</div>
+		
+		
+		
+		
+			<div class="panel panel-primary" th:if="${account}">
+				<div class="panel-heading">Account Details</div>
+				<div class="panel-body">
+				 <div th:if="${account.client}">
+				    <div>
+						<label>Client :</label>
+						<label th:text="${account.client.clientName}"></label>
+					</div>
+					<div>
+						<label>Account Code :</label>
+						<label th:text="${account.accountCode}"></label>
+					</div>
+					<div>
+						<label>Creation Date :</label>
+						<label th:text="${account.creationDate}"></label> 
+					</div>
+					<div>
+						<label>Balance :</label>
+						<label th:text="${account.balance}"></label> 
+					</div>
+				 </div>
+				</div>
+			</div>
+		
+		
+		</div>
+		<div class="col-md-6">
+			<div class="panel panel-primary" th:if="${account}" sec:authorize="hasRole('ROLE_ADMIN')">
+				<div class="panel-heading">Make Operation</div>
+				<div class="panel-body">
+					<form th:action="@{/saveOperation}" method="post">
+					 <div>
+						<label>Account: </label>
+						<input type="hidden" name="accountCode" th:value="${accountCode}"/>
+						<label th:text="${accountCode}"></label>
+					 </div>	
+					 <div>
+					 	<input type="radio" value="DEPO" name="operationType"/>
+					 	<label>Deposit</label>
+					 	<input type="radio" value="WITHD" name="operationType" checked="checked"/>
+					 	<label>Withdrawal</label>
+					 </div>
+					 <div>
+						<label>Amount :</label>
+						<input type="text" name="amount" required />
+					</div>	
+					<div class="text-danger" th:text="${#httpServletRequest.getParameter('error')}"></div>
+						<button  type="submit" class="btn btn-primary">Save</button>
+					</form>
+				
+				</div>
+			</div>
+		
+		
+		
+			<div class="panel panel-primary" th:if="${account}">
+				<div class="panel-heading">Operations History</div>
+				<div class="panel-body"></div>
+				<table class="table table-striped">
+				<tr>
+				<th>Number</th>
+				<th>Type</th>
+				<th>Date</th>
+				<th>Amount</th>
+				</tr>
+				
+				<tr th:each="o:${operations}">
+					<td th:text="${o.number}"></td>
+					<td th:text="${o.class.simpleName}"></td>
+					<td th:text="${o.operationDate}"></td>
+					<td th:text="${o.amount}"></td>
+				</tr>
+					
+				</table>
+				<div class="container">
+					<ul class="nav nav-pills">
+						<li th:each="p,status:${pages}">
+							<a th:text="${status.index}"th:href="@{/viewAccount(accountCode=${accountCode},page=${status.index})}"></a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>
